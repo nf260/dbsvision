@@ -1,5 +1,4 @@
-libopencv=3.4.2
-py-opencv=3.4.2
+opencv-python==3.4.2.17
 joblib==1.0.1
 numpy==1.19.2
 matplotlib==3.3.4
