@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
-import os
 import math
 
 # Default coordinates for outer rectangle:
@@ -49,89 +48,89 @@ def all_contour_in_roi(contours,i, x_min, x_max, y_min, y_max):
             
     return point_in_roi
 
-def bs_detect(img, x_min, x_max, y_min, y_max, select_punched = False):
+def bs_detect(img, x_min, x_max, y_min, y_max, select_punched=False):
     '''
-    Detect blood spots in an image using threshold and contours
+    Detect blood spots in an image using threshold and contours.
     
-    Internal contours that lie completely within rectangle bounded by (x_min,y_min) to (x_max,y_max) are filled
+    Internal contours that lie completely within the rectangle bounded by (x_min, y_min) to (x_max, y_max) are filled.
     
-    If select_punched = True then only blood spots with green punch annotations are selected
+    If select_punched = True, then only blood spots with green punch annotations are selected.
     
-    img --> contours, hierarchy
+    Parameters:
+        img (np.ndarray): Input image.
+        x_min, x_max, y_min, y_max (int): ROI bounds.
+        select_punched (bool): Whether to filter by green punch marks.
     
-    ''' 
-    
-    
-    ## basic blood spot algorithm
-    
-    blurred_img = cv2.medianBlur(img,3)      
-    gray = cv2.cvtColor(blurred_img,cv2.COLOR_RGB2GRAY)
-    ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+    Returns:
+        contours, hierarchy: Contours and hierarchy of detected blood spots.
+    '''
 
-    # add background to remove enclosing artefacts
+    # Basic blood spot detection algorithm
+    blurred_img = cv2.medianBlur(img, 3)
+    gray = cv2.cvtColor(blurred_img, cv2.COLOR_RGB2GRAY)
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+    # Add circular background mask to remove enclosing artefacts
     h, w = thresh.shape
-    background = np.zeros((h,w),dtype=np.uint8)
-    x = int(w/2)
-    rad = int(w/2)
-    y = int(h/2)
-    background = cv2.circle(background,(x,y),rad,255,-1)
-    thresh = cv2.bitwise_and(background,thresh)
-    
-    # foreground noise reduction
-    kernel = np.ones((3,3),np.uint8)
-    closing = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=1)
-    
-    # find internal contours without noise reduction
-    s_contour_image, s_contours, s_hierarchy = cv2.findContours(closing, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    background = np.zeros((h, w), dtype=np.uint8)
+    x, y = int(w / 2), int(h / 2)
+    rad = int(w / 2)
+    background = cv2.circle(background, (x, y), rad, 255, -1)
+    thresh = cv2.bitwise_and(background, thresh)
 
-    # fill internal contours on thresholded image
+    # Foreground noise reduction
+    kernel = np.ones((3, 3), np.uint8)
+    closing = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=1)
+
+    # Find internal contours
+    s_contour_image = closing.copy()
+    s_contours, s_hierarchy = cv2.findContours(s_contour_image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Fill valid internal contours
     for i in range(len(s_contours)):
-        # skip if contour is outside region of interest
-        if not all_contour_in_roi(s_contours,i,x_min,x_max,y_min,y_max):
+        if not all_contour_in_roi(s_contours, i, x_min, x_max, y_min, y_max):
             continue
-        ## last field in heirarchy is -1 if the contour has no parent - so select only those with parent
-        if s_hierarchy[0][i][3] != -1: 
-            # fill contours on threshold image, only if contour is large enough to be a punch
+        if s_hierarchy[0][i][3] != -1:  # has a parent contour
             if cv2.contourArea(s_contours[i]) > 100:
-                cv2.drawContours(closing, s_contours, i, (255,255,255),thickness=cv2.FILLED)
-        
-    # noise removal on amended thresholded image
-    kernel = np.ones((3,3),np.uint8)
-    opening = cv2.morphologyEx(closing,cv2.MORPH_OPEN,kernel, iterations = 5)
-    
-    # find contours --> blood spots
-    contour_image, contours, hierarchy = cv2.findContours(opening, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    
+                cv2.drawContours(closing, s_contours, i, (255, 255, 255), thickness=cv2.FILLED)
+
+    # Noise removal after contour filling
+    kernel = np.ones((3, 3), np.uint8)
+    opening = cv2.morphologyEx(closing, cv2.MORPH_OPEN, kernel, iterations=5)
+
+    # Final contour detection
+    contour_image = opening.copy()
+    contours, hierarchy = cv2.findContours(contour_image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
     if not select_punched:
         return contours, hierarchy
-    
-    elif select_punched:
-        
-        img_rgb = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
 
-        for i in range(len(contours)):
-            # fill external contours
-            cv2.drawContours(contour_image, contours, i, (255,255,255), thickness=cv2.FILLED)               
+    # --- Punched Spot Selection ---
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        # blur image for green mask - use a separate blur in case the optimum kernal size differs    
-        blurred_img_gm = cv2.medianBlur(img_rgb,7)
+    # Fill detected contours
+    for i in range(len(contours)):
+        cv2.drawContours(contour_image, contours, i, (255, 255, 255), thickness=cv2.FILLED)
 
-        ## convert to hsv and mask of green (36,25,25) ~ (86, 255,255)
-        hsv = cv2.cvtColor(blurred_img_gm, cv2.COLOR_RGB2HSV)
-        mask = cv2.inRange(hsv, (36, 25, 25), (86, 255,255))
+    # Blur for green mask generation
+    blurred_img_gm = cv2.medianBlur(img_rgb, 7)
+    hsv = cv2.cvtColor(blurred_img_gm, cv2.COLOR_RGB2HSV)
+    mask = cv2.inRange(hsv, (36, 25, 25), (86, 255, 255))
 
-        # mask erosion
-        kernel = np.ones((9,9),np.uint8)
-        mask_erode = cv2.erode(mask,kernel,iterations = 2)
-        mask_erode = cv2.medianBlur(mask_erode,3)
+    # Refine green mask
+    kernel = np.ones((9, 9), np.uint8)
+    mask_erode = cv2.erode(mask, kernel, iterations=2)
+    mask_erode = cv2.medianBlur(mask_erode, 3)
 
-        # add mask to grayscale image (so that punches appear as white)
-        add_punch = cv2.subtract(contour_image,mask_erode)
+    # Subtract mask from contour image to leave only punched spots
+    add_punch = cv2.subtract(contour_image, mask_erode)
 
-        ## detect contours of punched spot
-        p_contour_image, p_contours, p_hierarchy = cv2.findContours(add_punch, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    # Find contours of punched spots
+    p_contour_image = add_punch.copy()
+    p_contours, p_hierarchy = cv2.findContours(p_contour_image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
-        return p_contours, p_hierarchy
+    return p_contours, p_hierarchy
+
 
 
 def bs_detect_newPanthera(img, x_min, x_max, y_min, y_max, select_punched = False):
@@ -167,7 +166,7 @@ def bs_detect_newPanthera(img, x_min, x_max, y_min, y_max, select_punched = Fals
     closing = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=1)
     
     # find internal contours without noise reduction
-    s_contour_image, s_contours, s_hierarchy = cv2.findContours(closing, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    s_contours, s_hierarchy = cv2.findContours(closing, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
     # fill internal contours on thresholded image
     for i in range(len(s_contours)):
@@ -185,7 +184,7 @@ def bs_detect_newPanthera(img, x_min, x_max, y_min, y_max, select_punched = Fals
     opening = cv2.morphologyEx(closing,cv2.MORPH_OPEN,kernel, iterations = 5)
     
     # find contours --> blood spots
-    contour_image, contours, hierarchy = cv2.findContours(opening, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(opening, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
     
     if not select_punched:
         return contours, hierarchy
@@ -214,7 +213,7 @@ def bs_detect_newPanthera(img, x_min, x_max, y_min, y_max, select_punched = Fals
         add_punch = cv2.subtract(contour_image,mask_erode)
 
         ## detect contours of punched spot
-        p_contour_image, p_contours, p_hierarchy = cv2.findContours(add_punch, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+        p_contours, p_hierarchy = cv2.findContours(add_punch, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
         return p_contours, p_hierarchy    
     

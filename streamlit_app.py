@@ -85,7 +85,7 @@ if uploaded_file:
     )
 
     st.header("Bounding box image")
-    st.image(bounding_box_img, channels="RGB", use_column_width=True)
+    st.image(bounding_box_img, channels="RGB", use_container_width=True)
 
 else:
     st.info("Awaiting image upload...")
