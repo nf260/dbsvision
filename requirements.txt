@@ -24,7 +24,6 @@ matplotlib==3.10.0
 narwhals
 numexpr
 numpy
-opencv-python==4.9.0.80
 opencv-python-headless==4.9.0.80
 packaging
 pandas
