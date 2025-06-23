@@ -15,34 +15,38 @@ st.title("DBS Vision - Single image analysis")
 
 # === Parameter Section 1: ROI ===
 st.header("1. Parameters")
-st.write("Leave default values, unless you know what you are doing")
-st.subheader("Co-ordinates of outer rectange")
-st.write("The entire DBS must fall within this region")
-col1, col2 = st.columns(2)
-with col1:
-    x_min = st.number_input("x_min", value=1)
-    x_max = st.number_input("x_max", value=459)
-with col2:
-    y_min = st.number_input("y_min", value=50)
-    y_max = st.number_input("y_max", value=299)
+st.write("Default parameters are usually sufficient for most use cases.")
 
-# === Parameter Section 2: Search Circle ===
-st.subheader("Search Area (Circle)")
-st.write("The circular punching region of the puncher. At least part of the DBS must fall within this region")
-col3, col4, col5 = st.columns(3)
-with col3:
-    center_x = st.number_input("Center X", value=209)
-with col4:
-    center_y = st.number_input("Center Y", value=139)
-with col5:
-    radius = st.number_input("Radius", value=68)
+with st.expander("🔧 ROI Coordinates (Advanced)", expanded=False):
+    st.write("The entire DBS must fall within this region")
+    col1, col2 = st.columns(2)
+    with col1:
+        x_min = st.number_input("x_min", value=1)
+        x_max = st.number_input("x_max", value=459)
+    with col2:
+        y_min = st.number_input("y_min", value=50)
+        y_max = st.number_input("y_max", value=299)
+
+with st.expander("🔧 Search Circle (Advanced)", expanded=False):
+    st.write("The circular punching region of the puncher.")
+    col3, col4, col5 = st.columns(3)
+    with col3:
+        center_x = st.number_input("Center X", value=209)
+    with col4:
+        center_y = st.number_input("Center Y", value=139)
+    with col5:
+        radius = st.number_input("Radius", value=68)
 
 center = (center_x, center_y)
 
 # === Parameter Section 3: Scaling ===
 st.subheader("Image Scaling")
-st.write("Conversion between pixels and mm")
-mm_per_pixel = st.number_input("mm per pixel", value=0.1161)
+st.markdown(
+    "Conversion between pixels and mm. For more detail of how to determine the correct value for your instrument visit the "
+    "[Configuration page](./Configuration)"
+)
+mm_per_pixel = st.number_input("mm per pixel", value=0.1161, format="%.4f")
+
 
 # === Upload Image Section ===
 st.header("2. Upload Image")
