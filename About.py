@@ -33,9 +33,10 @@ For questions or comments please contact: [nick.flynn@nhs.net](mailto:nick.flynn
 
 This application is intended for research and service evaluation only.
 
-Although this tool was developed using images exported from a **Revvity Panthera puncher**, it is **not developed, endorsed, or supported by Revvity**.
+You are solely responsible for ensuring that you have obtained all necessary permissions, consents, and approvals for uploading or analysing any data via this application.
+
+Although this tool uses images from a Revvity Panthera puncher, it is not developed, endorsed, or supported by Revvity.
 
 Use of this software is at your own risk. The developer and affiliated institutions accept no responsibility for any consequences arising from its use.
             
-
 """)
