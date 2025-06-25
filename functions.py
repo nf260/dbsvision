@@ -424,59 +424,51 @@ def spot_metrics(contours,hierarchy,mm_per_pixel, center, radius, select_punched
 
     return spot_list
 
-def spot_metrics_multi(input_folder,x_min,x_max,y_min,y_max,mm_per_pix,center,radius,image_type,select_punched=False):
+def spot_metrics_multi_uploaded(uploaded_files, x_min, x_max, y_min, y_max,
+                                mm_per_pix, center, radius, image_type, select_punched=False):
     '''
-    Calculate metrics on multiple images
-    
-    Image type:
-    'screenshot' - a screenshot from the Panthera PC
-    'original' - the original view from the Panthera camera
-    'cropped' - an image which has been cropped to within the gripping hand
-    
+    Calculate metrics on multiple uploaded images
+
+    Parameters:
+    - uploaded_files: list of Streamlit UploadedFile objects
     '''
     spot_list = []
-    cols = ['file','contour_index','area','perimeter_mm','roundness','equiv_diam_mm', 
-            'long_mm','short_mm', 'elongation', 'circular_extent',
-             'hull_area', 'solidity', 'hull_perimeter', 'convexity', 
+    cols = ['file', 'contour_index', 'area', 'perimeter_mm', 'roundness', 'equiv_diam_mm',
+            'long_mm', 'short_mm', 'elongation', 'circular_extent',
+            'hull_area', 'solidity', 'hull_perimeter', 'convexity',
             'number_punches', 'average_punch_area',
-            'average_punch_dist_from_center_mm','average_punch_dist_from_center_prop']
-    
-    for file in os.listdir(input_folder):
+            'average_punch_dist_from_center_mm', 'average_punch_dist_from_center_prop']
 
-        # skip non-image files
-        if not (file.endswith('.jpg') or file.endswith('png')):
+    for uploaded_file in uploaded_files:
+        if not uploaded_file.name.lower().endswith(('.jpg', '.png', '.jpeg')):
             continue
 
-        # read image
-        img = cv2.imread(input_folder + "/"+ file)
-        
+        # Read image from upload
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+
+        # Apply crop based on image type
         if image_type == 'screenshot':
             img = img[230:530, 509:969]
-
-        elif image_type =='original':
+        elif image_type == 'original':
             img = img[0:300, 150:610]
-        
         elif image_type == 'cropped':
             pass
-        
         else:
-            raise Exception("Image type must be either 'screenshot', 'original' or 'cropped'")
-        
-        #if image is already cropped then no further crop is necessary
-                 
-        # detect punched blood spot
-        contours, hierarchy = bs_detect(img,x_min,x_max,y_min,y_max,select_punched=select_punched)
+            raise ValueError("Image type must be 'screenshot', 'original', or 'cropped'")
 
-        # calculate blood spot metrics
-        spot_met = spot_metrics(contours,hierarchy,mm_per_pix,center,radius,select_punched=select_punched)
+        # Detect contours
+        contours, hierarchy = bs_detect(img, x_min, x_max, y_min, y_max, select_punched=select_punched)
+
+        # Calculate metrics
+        spot_met = spot_metrics(contours, hierarchy, mm_per_pix, center, radius, select_punched=select_punched)
 
         for row in spot_met:
-            row.insert(0,file[:-4])
+            row.insert(0, uploaded_file.name)
 
         spot_list.extend(spot_met)
 
     df = pd.DataFrame(spot_list, columns=cols)
-    
     return df
 
 def spot_metrics_multi_newPanthera(input_folder,x_min,x_max,y_min,y_max,mm_per_pix,center,radius,image_type,select_punched=False):
