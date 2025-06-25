@@ -104,6 +104,21 @@ if uploaded_file:
 
     st.header("3. Output")
 
+    # Show warning if mm_per_pixel is outside expected range
+    expected_ranges = {
+        752: (0.11, 0.13),
+        1440: (0.05, 0.07)
+    }
+
+    if image_width in expected_ranges:
+        lower, upper = expected_ranges[image_width]
+        if not (lower <= mm_per_pixel <= upper):
+            st.warning("""
+            ⚠️ mm per pixel is out of the expected range.  
+            DBS diameter may be inaccurate.  
+            Please review the [Configuration page](Configuration).
+            """)
+
     diameter = round(spot_met[0][4], 1)
     ms_prob = round(prob_ms_list[0][1], 3)
     
