@@ -184,6 +184,7 @@ def bs_detect_newPanthera(img, x_min, x_max, y_min, y_max, select_punched = Fals
     opening = cv2.morphologyEx(closing,cv2.MORPH_OPEN,kernel, iterations = 5)
     
     # find contours --> blood spots
+    contour_image = opening.copy()
     contours, hierarchy = cv2.findContours(opening, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
     
     if not select_punched:
