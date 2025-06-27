@@ -14,21 +14,19 @@ from functions import (
 
 st.title("DBS Vision - Single image analysis")
 
-# === Parameter Section 1: ROI ===
-st.header("1. Parameters")
+
+# Sidebar inputs
+st.sidebar.header("🔧 Configuration")
+
+mm_per_pixel = st.sidebar.number_input("mm per pixel", value=0.1161, format="%.4f")
 
 st.markdown(
-    "Conversion between pixels and mm. For more detail of how to determine the correct value for your instrument visit the "
-    "[Configuration page](./Configuration)")
-st.markdown("As a rough guide use **0.12** for images with size **752 x 480** and **0.06** for images with size **1440 × 920**"
+    "Enter mm per pixel in sidebar. For more detail of how to determine the correct value for your instrument visit the "
+    "[Configuration page](./Configuration). As a rough guide use **0.12** for images with size **752 x 480** and **0.06** for images with size **1440 × 920**"
 )
-mm_per_pixel = st.number_input("mm per pixel", value=0.1161, format="%.4f")
 
 
-# === Upload Image Section ===
-st.header("2. Upload Image")
-st.write("This should be an original image from the Panthera puncher")
-uploaded_file = st.file_uploader("Upload a .jpg/.jpeg/.png image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload an image from the Panthera puncher", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
@@ -101,8 +99,6 @@ if uploaded_file:
         diam_range=(8, 16),
         prob_multi_limit=0.50
     )
-
-    st.header("3. Output")
 
     # Show warning if mm_per_pixel is outside expected range
     expected_ranges = {

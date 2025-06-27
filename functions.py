@@ -1,20 +1,9 @@
+import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
 import math
-
-# Default coordinates for outer rectangle:
-x_min=1
-x_max=459
-y_min=50
-y_max=299
-
-# Default coordinates and radius for search area
-
-center = (209,139)
-radius = 68
-
 
 def contour_in_roi(contours, i, center, radius):
     ''' Function to determine if area is in ROI
@@ -130,8 +119,6 @@ def bs_detect(img, x_min, x_max, y_min, y_max, select_punched=False):
     p_contours, p_hierarchy = cv2.findContours(p_contour_image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
     return p_contours, p_hierarchy
-
-
 
 def bs_detect_newPanthera(img, x_min, x_max, y_min, y_max, select_punched = False):
     '''
@@ -284,34 +271,6 @@ def draw_bs_contours(img,contours,hierarchy, center, radius, label_contours=Fals
                         
     return img
 
-def calibrate_mm_per_pixel(contours,hierarchy, center, radius,calibrant_length_mm):
-    '''
-    Calculate the mm per pixel from a square calibration image
-    '''
-    spot_list = []
-    
-    for i in range(len(contours)):
-        
-        if not contour_in_roi(contours,i,center,radius):
-            continue
-                
-        # last column in the array is -1 if an external contour (no contours inside of it)
-        if hierarchy[0][i][2] != -1:
-            area = cv2.contourArea(contours[i])
-            
-            # add area of blood spot, number of punches and average punch area to list
-            spot_list.append([i,area])
-    
-    if len(spot_list) == 1:
-        calibrant_area = spot_list[0][1]
-        calibrant_pixel_length = math.sqrt(calibrant_area)
-        
-        mm_per_pixel_calibration = calibrant_length_mm/calibrant_pixel_length
-        return mm_per_pixel_calibration
-        
-    else:
-        raise Exception("More than one blood spot detected")
-
 def spot_metrics(contours,hierarchy,mm_per_pixel, center, radius, select_punched = False):
     
     spot_list = []
@@ -425,7 +384,7 @@ def spot_metrics(contours,hierarchy,mm_per_pixel, center, radius, select_punched
     return spot_list
 
 def spot_metrics_multi_uploaded(uploaded_files, x_min, x_max, y_min, y_max,
-                                mm_per_pix, center, radius, image_type, select_punched=False):
+                                mm_per_pix, center, radius, image_size, select_punched=False):
     '''
     Calculate metrics on multiple uploaded images
 
@@ -447,18 +406,19 @@ def spot_metrics_multi_uploaded(uploaded_files, x_min, x_max, y_min, y_max,
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
         img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-        # Apply crop based on image type
-        if image_type == 'screenshot':
-            img = img[230:530, 509:969]
-        elif image_type == 'original':
+        # Check image matches expected image size
+        if ((image_size == '752 x 480' and img.shape[1] != 752) or (image_size == '1440 x 920' and img.shape[1] != 1440)):
+            st.warning("⚠️ Unexpected image size for image  " + str(uploaded_file.name.lower()))
+        
+        # Apply crop and detect DBS (algorithm based on image type)
+        if image_size == '752 x 480':
             img = img[0:300, 150:610]
-        elif image_type == 'cropped':
-            pass
+            contours, hierarchy = bs_detect(img, x_min, x_max, y_min, y_max, select_punched=select_punched)
+        elif image_size == '1440 x 920':
+            img = img[0:580, 250:1160]
+            contours, hierarchy = bs_detect_newPanthera(img, x_min, x_max, y_min, y_max, select_punched=select_punched)
         else:
-            raise ValueError("Image type must be 'screenshot', 'original', or 'cropped'")
-
-        # Detect contours
-        contours, hierarchy = bs_detect(img, x_min, x_max, y_min, y_max, select_punched=select_punched)
+            raise ValueError("Image size not supported")
 
         # Calculate metrics
         spot_met = spot_metrics(contours, hierarchy, mm_per_pix, center, radius, select_punched=select_punched)
@@ -469,61 +429,6 @@ def spot_metrics_multi_uploaded(uploaded_files, x_min, x_max, y_min, y_max,
         spot_list.extend(spot_met)
 
     df = pd.DataFrame(spot_list, columns=cols)
-    return df
-
-def spot_metrics_multi_newPanthera(input_folder,x_min,x_max,y_min,y_max,mm_per_pix,center,radius,image_type,select_punched=False):
-    '''
-    Calculate metrics on multiple images
-    
-    Image type:
-    'screenshot' - a screenshot from the Panthera PC
-    'original' - the original view from the Panthera camera
-    'cropped' - an image which has been cropped to within the gripping hand
-    
-    '''
-    spot_list = []
-    cols = ['file','contour_index','area','perimeter_mm','roundness','equiv_diam_mm', 
-            'long_mm','short_mm', 'elongation', 'circular_extent',
-             'hull_area', 'solidity', 'hull_perimeter', 'convexity', 
-            'number_punches', 'average_punch_area',
-            'average_punch_dist_from_center_mm','average_punch_dist_from_center_prop']
-    
-    for file in os.listdir(input_folder):
-
-        # skip non-image files
-        if not (file.endswith('.jpg') or file.endswith('png')):
-            continue
-
-        # read image
-        img = cv2.imread(input_folder + "/"+ file)
-        
-        if image_type == 'screenshot':
-            raise Exception('Screenshot not support on new Panthera')
-
-        elif image_type =='original':
-            img = img[0:580, 250:1160]
-        
-        elif image_type == 'cropped':
-            pass
-        
-        else:
-            raise Exception("Image type must be either 'screenshot', 'original' or 'cropped'")
-        
-        #if image is already cropped then no further crop is necessary
-                 
-        # detect punched blood spot
-        contours, hierarchy = bs_detect_newPanthera(img,x_min,x_max,y_min,y_max,select_punched=select_punched)
-
-        # calculate blood spot metrics
-        spot_met = spot_metrics(contours,hierarchy,mm_per_pix,center,radius,select_punched=select_punched)
-
-        for row in spot_met:
-            row.insert(0,file[:-4])
-
-        spot_list.extend(spot_met)
-
-    df = pd.DataFrame(spot_list, columns=cols)
-    
     return df
 
 def calc_multispot_prob(spot_metrics,columns,ml_columns,scaler,model,scale=True):
@@ -585,99 +490,6 @@ def calc_multispot_prob_multi(spot_metrics_df,ml_columns,scaler,model,scale=True
     joined_df = spot_metrics_df.reset_index(drop=True).join(joined_multi)
     
     return joined_df
-
-def bs_crop(img, contours,hierarchy, center, radius, select_punched = False, border=5):
-    '''
-    Returns bounding rectangle for contour
-    '''
-    
-    bounding_box_list = []
-    
-    # define critera for selecting blood spots based on image type
-    if select_punched:
-        # third column in the array is -1 if it does not have a child contour
-        criteria = 'hierarchy[0][i][2] != -1'
-    else:
-        # last column in the array is -1 if an external contour (no contours inside of it)
-        criteria = 'hierarchy[0][i][3] == -1'
-    
-    for i in range(len(contours)):
-        
-        if not contour_in_roi(contours,i,center,radius):
-            continue
-                
-        # last column in the array is -1 if an external contour (no contours inside of it)
-        if eval(criteria):
-
-            # calculate bounding rectangle
-            x,y,w,h = cv2.boundingRect(contours[i])
-            
-            # crop to bounding box (if possible)
-            
-            try:
-                cropped_image = img[y-border:y+h+border, x-border:x+w+border]
-                reshaped_image = cv2.resize(src=cropped_image,dsize=(100,100))
-                bounding_box_list.append([i, reshaped_image])
-                
-            except:
-                cropped_image = img[y:y+h, x:x+w]
-                reshaped_image = cv2.resize(src=cropped_image,dsize=(100,100))
-                bounding_box_list.append([i, reshaped_image])            
-            
-    return bounding_box_list
-
-def bs_multicrop(input_folder, output_folder, image_type, x_min,x_max,y_min,y_max,
-                 center, radius, select_punched = False, border=5):
-    '''
-    Crop blood spots on multiple images
-    
-    Image type:
-    'screenshot' - a screenshot from the Panthera PC
-    'original' - the original view from the Panthera camera
-    'cropped' - an image which has been cropped to within the gripping hand
-    
-    '''
-    
-    for file in os.listdir(input_folder):
-
-        # skip non-image files
-        if not (file.endswith('.jpg') or file.endswith('png')):
-            continue
-        
-        # read image
-        img = cv2.imread(input_folder + "/"+ file)
-
-        if image_type == 'screenshot':
-            img = img[230:530, 509:969]
-
-        elif image_type =='original':
-            img = img[0:300, 150:610]
-
-        elif image_type == 'cropped':
-            pass
-
-        else:
-            raise Exception("Image type must be either 'screenshot', 'original' or 'cropped'")
-
-        # detect punched blood spot
-        contours, hierarchy = bs_detect(img,x_min,x_max,y_min,y_max,select_punched=select_punched)
-
-        # crop blood spot
-        cropped_img_list = bs_crop(img, contours, hierarchy, center, radius, select_punched=select_punched)
-        
-        # save cropped image
-        for img in cropped_img_list:
-            
-            if len(cropped_img_list) == 1:
-                filename = output_folder + "/" + file[:-4] + ".jpg"
-            else:
-                filename = output_folder + "/" + file[:-4] + "-" + str(img[0]) + ".jpg"
-                print('MORE THAN ONE CONTOUR FROM THIS IMAGE')
-                
-                
-            print('Saving ' + file[:-4] + ' contour ' + str(img[0]))
-        
-            cv2.imwrite(filename, img[1])
 
 def draw_bounding_box(img,contours,hierarchy, center, radius, spot_metrics, multispot_prob_list, select_punched, 
                       diam_range = (8,14), prob_multi_limit = 0.50, prob_multi_borderline = 0.25, 
@@ -769,44 +581,3 @@ def draw_bounding_box(img,contours,hierarchy, center, radius, spot_metrics, mult
                                       fontScale=1, color=multiprob_colour, thickness=2, lineType=cv2.LINE_AA)  
             
     return img
-
-def image_multi_plot(df,rows,columns,title,figsize,select_punched,model,bounding_box=True, diam_range = (7.5,15.5), prob_multi_limit = 0.50):
-    fig = plt.figure(figsize=figsize,dpi=200)
-    plt.suptitle(title)
-
-    files = df['file'].values.tolist()
-    i = 1
-
-    for file in files:
-
-        img = cv2.imread('images/cropped/' + str(file) + '.jpg')
-        img_rgb = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-
-        # detect punched spot
-        contours, hierarchy = bs_detect(img, x_min, x_max, y_min, y_max, select_punched)
-        
-        # draw contours
-        contour_img = draw_bs_contours(img_rgb.copy(),contours,hierarchy, center, radius, select_punched)
-        
-        if bounding_box:
-            # calculate properties
-            spot_met = spot_metrics(contours,hierarchy,mm_per_pixel,center,radius, select_punched)
-            prob_ms_list = calc_multispot_prob(spot_met,cols,ml_cols,scaler,model)
-
-            # draw bounding box
-            bounding_box_img = draw_bounding_box(contour_img.copy(),contours,hierarchy, center, radius, spot_met,
-                                             multispot_prob_list=prob_ms_list, select_punched=select_punched, diam_range=diam_range,
-                                     prob_multi_limit=prob_multi_limit)
-
-        fig.add_subplot(rows,columns, i)
-
-        i += 1
-
-        if bounding_box:
-            plt.imshow(bounding_box_img)
-        else:
-            plt.imshow(contour_img)
-        plt.axis('off')
-        plt.title(file)
-
-    plt.show()
