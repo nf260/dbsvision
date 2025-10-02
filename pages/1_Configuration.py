@@ -5,7 +5,9 @@ st.title("Configuration")
 st.markdown("""
 ## Configuration of Pixel/mm Conversion Factor
 
-When running the algorithm, an instrument-specific conversion factor between pixels and millimetres is used. 
+When running the algorithm, an instrument-specific conversion factor between pixels and millimetres is used.
+
+In our experience this factor is constant over the lifetime of the instrument however can vary between instruments.
             
 This conversion can be determined in one of two ways:
 
@@ -26,7 +28,7 @@ Usually, these values are almost identical. We suggest using the **mean** of the
 
 For Panthera instruments with an image size of **1440 × 920 pixels**, using values from the `config.xml` file does **not** give accurate results.
 
-Instead, the pixel-to-millimetre conversion factor should be determined using by punching a circle of known diameter using the [external calibration page](./External_Calibration).
+Instead, the pixel-to-millimetre conversion factor should be determined by punching a circle of known diameter and using the [external calibration page](./External_Calibration).
 
 If you would like to receive calibration material to determine a conversion factor, please contact: **nick.flynn@nhs.net**
 
