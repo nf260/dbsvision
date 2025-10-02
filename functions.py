@@ -37,6 +37,34 @@ def all_contour_in_roi(contours,i, x_min, x_max, y_min, y_max):
             
     return point_in_roi
 
+def calibrate_mm_per_pixel_circle(contours,hierarchy, center, radius, cal_radius):
+    '''
+    Calculate the mm per pixel from calibration image
+    '''
+    spot_list = []
+    
+    for i in range(len(contours)):
+        
+        if not contour_in_roi(contours,i,center,radius):
+            continue
+                
+        # last column in the array is -1 if an external contour (no contours inside of it)
+        if hierarchy[0][i][2] != -1:
+            area = cv2.contourArea(contours[i])
+            
+            # add area of blood spot, number of punches and average punch area to list
+            spot_list.append([i,area])
+    
+    if len(spot_list) == 1:
+        calibrant_area = spot_list[0][1]
+        calibrant_pixel_diameter = np.sqrt(4*calibrant_area/np.pi)
+        calculated_mm_per_pixel = cal_radius/calibrant_pixel_diameter
+
+        return calculated_mm_per_pixel
+        
+    else:
+        raise Exception("More than one blood spot detected")
+
 def bs_detect(img, x_min, x_max, y_min, y_max, select_punched=False):
     '''
     Detect blood spots in an image using threshold and contours.
