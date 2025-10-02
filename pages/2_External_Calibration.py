@@ -88,5 +88,8 @@ if uploaded_file:
 
     st.markdown(
     "Make a note of the following parameter, which should be entered when analysing images from this Panthera using the algorithm")
-    
+
     st.metric("Calculated mm per pixel", f"{mm_per_pixel}")
+
+else:
+    st.info("Awaiting image upload...")

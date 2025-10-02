@@ -14,17 +14,13 @@ from functions import (
 
 st.title("DBS Vision - Single image analysis")
 
-
-# Sidebar inputs
-st.sidebar.header("🔧 Configuration")
-
-mm_per_pixel = st.sidebar.number_input("mm per pixel", value=0.1161, format="%.4f")
-
 st.markdown(
-    "Enter mm per pixel in sidebar. For more detail of how to determine the correct value for your instrument visit the "
+    "Enter mm per pixel. For more detail of how to determine the correct value for your instrument visit the "
     "[Configuration page](./Configuration). As a rough guide use **0.12** for images with size **752 x 480** and **0.06** for images with size **1440 × 920**"
 )
 
+# Main page input FIRST
+mm_per_pixel = st.number_input("🔧 mm per pixel", value=0.1161, format="%.4f")
 
 uploaded_file = st.file_uploader("Upload an image from the Panthera puncher", type=["jpg", "jpeg", "png"])
 
