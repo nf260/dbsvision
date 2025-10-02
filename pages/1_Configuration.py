@@ -26,7 +26,7 @@ Usually, these values are almost identical. We suggest using the **mean** of the
 
 For Panthera instruments with an image size of **1440 × 920 pixels**, using values from the `config.xml` file does **not** give accurate results.
 
-Instead, the pixel-to-millimetre conversion factor should be determined using an **external calibration curve** by punching circles of known diameter.
+Instead, the pixel-to-millimetre conversion factor should be determined using by punching a circle of known diameter using the [external calibration page](./External_Calibration).
 
 If you would like to receive calibration material to determine a conversion factor, please contact: **nick.flynn@nhs.net**
 
