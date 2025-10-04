@@ -93,3 +93,32 @@ if uploaded_file is not None:
 
     st.pyplot(fig)
 
+    # --- Download statistics ---
+    st.subheader("Download summary statistics")
+    stats = {
+        "Total DBS": total_count,
+        "Acceptable DBS": acceptable_count,
+        "Acceptable DBS (%)": acceptable_pct,
+        "Small (<8mm) DBS": insufficient_count,
+        "Small (<8mm) DBS (%)": insufficient_pct,
+        "Multispotted DBS": multispotted_count,
+        "Multispotted DBS (%)": multispotted_pct,
+        "Mean DBS diameter (mm)": DBS_mean,
+        "Median DBS diameter (mm)": DBS_median,
+        "25th percentile (mm)": DBS_p25,
+        "75th percentile (mm)": DBS_p75,
+        "5th percentile (mm)": DBS_p5,
+        "95th percentile (mm)": DBS_p95,
+    }
+
+    stats_df = pd.DataFrame(stats.items(), columns=["Metric", "Value"])
+    csv_data = stats_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="Download statistics as CSV",
+        data=csv_data,
+        file_name="dbs_summary_statistics.csv",
+        mime="text/csv"
+    )
+
+
