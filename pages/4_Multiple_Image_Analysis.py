@@ -112,5 +112,9 @@ if uploaded_files:
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button("Download results as CSV", data=csv, file_name="spot_metrics.csv", mime='text/csv')
 
+    st.markdown(
+    "To analyse data in the .csv file, visit the [Data Analysis page](./Data_Analysis)."
+    )
+
 else:
     st.info("Upload one or more images to begin.")

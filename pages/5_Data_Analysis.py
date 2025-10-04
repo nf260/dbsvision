@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 
 st.title("Data analysis")
 
+st.markdown(
+"In this section you can analyse the .csv file obtained from the [Multiple Image Analysis page](./Multiple_Image_Analysis)."
+)
+
 # Filtering option
 st.subheader("Data Selection")
 filter_option = st.radio(
@@ -25,9 +29,6 @@ if uploaded_file is not None:
     if filter_option == "First punch for each sample ID":
         # Keep only the first record per sample_id based on earliest datetime
         df = df.sort_values(['sample_id', 'datetime']).drop_duplicates('sample_id', keep='first')
-
-    st.subheader("Data preview")
-    st.write(df.head())
 
     # DBS Classification
     st.subheader("DBS classification")
