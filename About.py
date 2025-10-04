@@ -11,6 +11,7 @@ Use the sidebar to navigate between pages:
 - Understanding how to configure the app and determine the instrument specific pixel-mm conversion factor
 - Uploading and analysing single images of dried blood spots and viewing annotated image
 - Analysing multiple images and exporting DBS metrics as .csv file
+- Analysing the .csv file to determine the provide summary statistics on DBS quality
 
 --- 
             
@@ -28,7 +29,7 @@ Use this software at your own risk.
 
 This tool was developed by [Nick Flynn](https://www.linkedin.com/in/flynnn) of Cambridge University Hospitals NHS Foundation Trust.
 
-If you use this application at all, please let me know! [nick.flynn@nhs.net](mailto:nick.flynn@nhs.net)
+For comments, suggestions, or questions please contact: [nick.flynn@nhs.net](mailto:nick.flynn@nhs.net)
             
 If you use this application in a publication, please cite the following paper:
              
