@@ -9,21 +9,17 @@ The DBS Vision App allows you to perform computer vision analysis of dried blood
 
 Use the sidebar to navigate between pages:
 - Understanding how to configure the app and determine the instrument specific pixel-mm conversion factor
-- Uploading and analysing single images of dried blood spots and viewing annotated image
-- Analysing multiple images and exporting DBS metrics as .csv file
-- Analysing the .csv file to determine the provide summary statistics on DBS quality
+- Uploading and analysing single images of dried blood spots and viewing an annotated image
+- Analysing multiple images and exporting DBS quality metrics as .csv file
+- Analysing the .csv file to produce summary statistics on DBS quality
 
 --- 
             
 ### ⚠️ Disclaimer
-
-This application is intended for research and service evaluation only.
-
-You are solely responsible for ensuring that you have obtained all necessary permissions, consents, and approvals for uploading or analysing any data via this application.
-
-Although this tool uses images from a Revvity Panthera puncher, it is not developed, endorsed, or supported by Revvity.
-
-Use this software at your own risk.
+- This application is intended for research and service evaluation only.
+- You are solely responsible for ensuring that you have obtained all necessary permissions, consents, and approvals for uploading or analysing any data via this application.
+- Although this tool uses images from a Revvity Panthera puncher, it is not developed, endorsed, or supported by Revvity.
+- Use this software at your own risk.
 
 ---
 
