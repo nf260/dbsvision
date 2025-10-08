@@ -2,8 +2,9 @@ import streamlit as st
 import numpy as np
 import cv2
 
-st.title("External calibration")
+st.set_page_config(page_title="Calibration | DBS Vision App", page_icon="🩸", layout="wide")
 
+st.title("External calibration")
 
 from functions import (
     bs_detect,
@@ -12,8 +13,9 @@ from functions import (
     draw_bs_contours)
 
 st.markdown(
-    "Select the calibration material used to calibrate the Panthera measurement, then upload an image of that material. " \
-    "Note at present (October 2025) there is currently only one calibration material available"
+"On this page you can calculate the mm_per_pixel parameter for a Panthera puncher. \n \n" \
+"Select the calibration material used to calibrate the Panthera measurement, then upload an image of that material. " \
+"Note at present (October 2025) there is currently only one calibration material available"
 )
 
 # Dictionary of calibration materials and their radii

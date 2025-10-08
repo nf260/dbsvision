@@ -3,31 +3,39 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+st.set_page_config(page_title="Data Analysis | DBS Vision App", page_icon="🩸", layout="wide")
+
 st.title("Data analysis")
 
 st.markdown(
-"In this section you can analyse the .csv file obtained from the [Multiple Image Analysis page](./Multiple_Image_Analysis)."
+"In this section you can perform some simple analysis of `.csv` file(s) obtained from the [Multiple Image Analysis page](./Multiple_Image_Analysis). "
 )
 
-# Filtering option
-st.subheader("Data Selection")
+# --- Upload CSV(s) ---
+st.subheader("Data Upload")
+uploaded_files = st.file_uploader(
+    "Upload one or more CSV files",
+    type=["csv"],
+    accept_multiple_files=True
+)
+
 filter_option = st.radio(
     "Select which data to include:",
     ["All rows", "First punch for each sample ID"],
     horizontal=True
 )
-# Upload CSV
-uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
 
-if uploaded_file is not None:
-    # Load data
-    df = pd.read_csv(uploaded_file)
+if uploaded_files:
+    # Read and concatenate all uploaded CSVs
+    df_list = []
+    for file in uploaded_files:
+        temp_df = pd.read_csv(file)
+        df_list.append(temp_df)
 
-    # Ensure datetime column is parsed correctly
+    df = pd.concat(df_list, ignore_index=True)
     df['datetime'] = pd.to_datetime(df['datetime'], errors='coerce')
-    
+
     if filter_option == "First punch for each sample ID":
-        # Keep only the first record per sample_id based on earliest datetime
         df = df.sort_values(['sample_id', 'datetime']).drop_duplicates('sample_id', keep='first')
 
     # DBS Classification

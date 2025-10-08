@@ -12,9 +12,12 @@ from functions import (
     draw_bounding_box
 )
 
+st.set_page_config(page_title="Single Image Analysis | DBS Vision App", page_icon="🩸", layout="wide")
+
 st.title("DBS Vision - Single image analysis")
 
 st.markdown(
+    "On this page you can analyse a single image and view an annotated image. \n \n"
     "Enter mm per pixel. For more detail of how to determine the correct value for your instrument visit the "
     "[Configuration page](./Configuration). As a rough guide use **0.12** for images with size **752 x 480** and **0.06** for images with size **1440 × 920**"
 )

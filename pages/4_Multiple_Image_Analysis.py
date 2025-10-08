@@ -3,6 +3,8 @@ import pandas as pd
 import io
 from PIL import Image
 
+st.set_page_config(page_title="Multiple Image Analysis | DBS Vision App", page_icon="🩸", layout="wide")
+
 st.title("Multi image analysis")
 
 from functions import spot_metrics_multi_uploaded, calc_multispot_prob_multi
@@ -16,6 +18,7 @@ ml_cols = ['roundness','elongation','circular_extent','solidity','convexity']
 cols_to_show = ['file','sample_id','datetime','equiv_diam_mm','number_punches','pred_multi','prob_multi','mm_per_pixel']
 
 st.markdown(
+    "On this page you can analysis multiple image files. \n \n"
     "Enter mm per pixel. For more detail of how to determine the correct value for your instrument visit the "
     "[Configuration page](./Configuration). As a rough guide use **0.12** for images with size **752 x 480** and **0.06** for images with size **1440 × 920**"
 )
