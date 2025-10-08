@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="Welcome | DBS Vision App", page_icon="🩸")
+st.set_page_config(page_title="Welcome | DBS Vision App", page_icon="🩸", layout="wide")
 
 st.title("Welcome to the DBS Vision App")
 
@@ -11,7 +11,8 @@ Use the sidebar to navigate between pages:
 - Understanding how to configure the app and determine the instrument specific pixel-mm conversion factor
 - Uploading and analysing single images of dried blood spots and viewing an annotated image
 - Analysing multiple images and exporting DBS quality metrics as .csv file
-- Analysing the .csv file to produce summary statistics on DBS quality
+- Simple analysis of the .csv file to produce summary statistics on DBS quality and show DBS diameter distribution
+- Time series analysis of a .csv file to assess time
 
 --- 
             
