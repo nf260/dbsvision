@@ -2,6 +2,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Welcome | DBS Vision App", page_icon="🩸", layout="wide")
 
+st.image("images/dbs.jpg", use_container_width=True)
+
 st.title("Welcome to the DBS Vision App")
 
 st.markdown("""
