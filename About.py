@@ -10,11 +10,17 @@ st.markdown("""
 The DBS Vision App allows you to perform computer vision analysis of dried blood spot size and shape, using images obtained using a Revvity Panthera 9 puncher.
 
 Use the sidebar to navigate between pages:
-- Understanding how to configure the app and determine the instrument specific pixel-mm conversion factor
-- Uploading and analysing single images of dried blood spots and viewing an annotated image
-- Analysing multiple images and exporting DBS quality metrics as .csv file
-- Simple analysis of the .csv file to produce summary statistics on DBS quality and show DBS diameter distribution
-- Time series analysis of a .csv file to assess time
+
+
+| Page | Description |
+|------|--------------|
+| **Configuration** | Understanding how to configure the app and determine the instrument-specific pixel-mm conversion factor. |
+| **External Calibration** | Calculating the instrument-specific pixel-mm conversion factor using an external standard. |
+| **Single Image Analysis** | Uploading and analysing single images of dried blood spots and viewing an annotated image. |
+| **Multiple Image Analysis** | Analysing multiple images and exporting DBS quality metrics as a .csv file. |
+| **Data Analysis** | Simple analysis of the .csv file to produce summary statistics on DBS quality and show DBS diameter distribution. |
+| **Time Series Analysis** | Time series analysis of a .csv file to assess time-based trends in DBS quality. |
+
 """)
             
 st.subheader("Disclaimer")
