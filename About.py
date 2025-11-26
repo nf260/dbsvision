@@ -28,7 +28,7 @@ st.markdown("""
 - This application is intended for research and service evaluation only.
 - You are solely responsible for ensuring that you have obtained all necessary permissions, consents, and approvals for uploading or analysing any data via this application.
 - Although this tool uses images from a Revvity Panthera puncher, it is not developed, endorsed, or supported by Revvity.
-- For further details refer to the [GNU General Public License v3.0](https://github.com/nf260/dbsvision/blob/main/LICENSE)")
+- For further details refer to the [GNU General Public License v3.0](https://github.com/nf260/dbsvision/blob/main/LICENSE))"""
 
 st.subheader("Example data")
 st.markdown("If you would like to explore the application without uploading your own images, you can download a zip file containing 28 images "
