@@ -5,7 +5,7 @@ from PIL import Image
 
 st.set_page_config(page_title="Multiple Image Analysis | DBS Vision App", page_icon="🩸", layout="wide")
 
-st.title("Multi image analysis")
+st.title("Multiple image analysis")
 
 from functions import spot_metrics_multi_uploaded, calc_multispot_prob_multi
 from joblib import load
@@ -100,7 +100,7 @@ if uploaded_files:
 
         # Extract using regex
         df[['sample_id', 'date_str', 'time_str']] = df['file'].str.extract(
-            r'^([^-]+)-(\d{8})-(\d{6})'
+            r'^(.*)-(\d{8})-(\d{6})'
         )
 
         # Combine and convert to datetime
