@@ -21,15 +21,21 @@ st.markdown(
 # Dictionary of calibration materials and their radii
 calibration_materials = {
     "C10 11/04/2025": 9.835,
+    "C10 07/11/2025": 9.605
     # Add more as needed
 }
 
-# Let user select
 calibration_material_option = st.selectbox(
     "Select calibration material",
-    options=list(calibration_materials.keys())
+    options=list(calibration_materials.keys()),
+    index=None,
+    placeholder="Select calibration material..."
 )
 
+if calibration_material_option is None:
+    st.info("Please select a calibration material to continue.")
+    st.stop()
+    
 # Look up the corresponding radius
 cal_radius = calibration_materials[calibration_material_option]
 
