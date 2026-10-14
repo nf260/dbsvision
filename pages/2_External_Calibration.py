@@ -18,7 +18,7 @@ st.markdown(
 "Note at present (October 2025) there is currently only one calibration material available"
 )
 
-# Dictionary of calibration materials and their radii (updated following measurement with calibrated calipers October 2026)
+# Dictionary of calibration materials and their diameters (updated following measurement with calibrated calipers October 2026)
 calibration_materials = {
     "C10 11/04/2025": 9.839,
     "C10 07/11/2025": 9.539
