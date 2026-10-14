@@ -21,7 +21,7 @@ st.markdown(
 # Dictionary of calibration materials and their radii (updated following measurement with calibrated calipers October 2026)
 calibration_materials = {
     "C10 11/04/2025": 9.839,
-    "C10 07/11/2025": 9.538
+    "C10 07/11/2025": 9.539
     # Add more as needed
 }
 
