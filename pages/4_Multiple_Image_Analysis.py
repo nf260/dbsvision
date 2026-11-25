@@ -26,6 +26,12 @@ st.markdown(
 # Main page input FIRST
 mm_per_pix = st.number_input("🔧 mm per pixel", value=0.1161, format="%.4f")
 
+include_ml_cols = st.checkbox(
+    "Include incorrect application classifier variables in results",
+    value=False,
+    help="Include roundness, elongation, circular extent, solidity and convexity."
+)
+
 uploaded_files = st.file_uploader(
     "Upload one or more image files from the Panthera puncher. All images must have the same size",
     type=["jpg", "jpeg", "png"],
@@ -106,7 +112,7 @@ if uploaded_files:
         # Combine and convert to datetime
         df['datetime'] = pd.to_datetime(df['date_str'] + df['time_str'], format='%Y%m%d%H%M%S')
         df['mm_per_pixel'] = mm_per_pix
-        df = df[cols_to_show]
+        df = df[cols_to_show + ml_cols if include_ml_cols else cols_to_show]
     
     st.success(f"✅ Metrics calculated for {len(df)} images (size {image_size[0]}x{image_size[1]})!")
     st.dataframe(df)
