@@ -13,9 +13,8 @@ from functions import (
     draw_bs_contours)
 
 st.markdown(
-"On this page you can calculate the mm_per_pixel parameter for a Panthera puncher. \n \n" \
-"Select the calibration material used to calibrate the Panthera measurement, then upload an image of that material. " \
-"Note at present (October 2025) there is currently only one calibration material available"
+    "On this page you can calculate the mm_per_pixel parameter for a Panthera puncher. \n\n"
+    "Select the calibration material used, ensuring that the date matches that printed on the calibration material, then upload an image of that material."
 )
 
 # Dictionary of calibration materials and their diameters (updated following measurement with calibrated calipers October 2026)
@@ -36,8 +35,8 @@ if calibration_material_option is None:
     st.info("Please select a calibration material to continue.")
     st.stop()
     
-# Look up the corresponding radius
-cal_radius = calibration_materials[calibration_material_option]
+# Look up the corresponding diameter
+cal_diameter = calibration_materials[calibration_material_option]
 
 uploaded_file = st.file_uploader("Upload calibration image from the Panthera puncher", type=["jpg", "jpeg", "png"])
 
@@ -92,7 +91,7 @@ if uploaded_file:
 
     st.image(contour_img, channels="RGB", use_container_width=True)
 
-    mm_per_pixel = round(calibrate_mm_per_pixel_circle(contours,hierarchy, center, radius, cal_radius),4)
+    mm_per_pixel = round(calibrate_mm_per_pixel_circle(contours,hierarchy, center, radius, cal_diameter),4)
 
     st.markdown(
     "Make a note of the following parameter, which should be entered when analysing images from this Panthera using the algorithm")
