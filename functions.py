@@ -37,7 +37,7 @@ def all_contour_in_roi(contours,i, x_min, x_max, y_min, y_max):
             
     return point_in_roi
 
-def calibrate_mm_per_pixel_circle(contours,hierarchy, center, radius, cal_radius):
+def calibrate_mm_per_pixel_circle(contours,hierarchy, center, radius, cal_diameter):
     '''
     Calculate the mm per pixel from calibration image
     '''
@@ -58,7 +58,7 @@ def calibrate_mm_per_pixel_circle(contours,hierarchy, center, radius, cal_radius
     if len(spot_list) == 1:
         calibrant_area = spot_list[0][1]
         calibrant_pixel_diameter = np.sqrt(4*calibrant_area/np.pi)
-        calculated_mm_per_pixel = cal_radius/calibrant_pixel_diameter
+        calculated_mm_per_pixel = cal_diameter/calibrant_pixel_diameter
 
         return calculated_mm_per_pixel
         
